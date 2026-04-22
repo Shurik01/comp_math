@@ -145,9 +145,11 @@ double halfDivision(vector<double> x, vector<double> ab, double eps){
 
 int main(){
     vector<double> x(3);
+    /* «некрасивые» координаты следует брать для того, чтобы все условия, являющиеся строгими
+    неравенствами, выполнялись */
     x[0] = 0.4154;
     x[1] = 0.51232;
-    x[2] = 0.5422;
+    x[2] = 0.9105;
     int k = 0;
     cout << "k =" << k << endl;
     cout << "x[0] = " << x[0] << endl;
@@ -156,11 +158,10 @@ int main(){
     
     do{
         vector<double> x_old = x;
-        vector<double> ab = find_ab(x_old, 0.1);
-        if (ab[0] > 1.0 || ab[1] > 2.0) {
-            break;
-        }
+        vector<double> ab = find_ab(x_old, 0.01);
+        cout << "find_ab вернул: a = " << ab[0] << ", b = " << ab[1] << endl;
         double alpha = halfDivision(x_old, ab, 0.0001);
+        cout << "alpha = " << alpha << endl;
         
         vector<double> x_new = sub(x_old, mult(gradF(x_old), alpha));
         k += 1;
@@ -170,14 +171,20 @@ int main(){
         cout << "x[1] = " << x_new[1] << endl;
         cout << "x[2] = " << x_new[2] << endl;
         cout << "f(x) = " << func(x_new) << endl;
+
+        double grad_len = length(gradF(x_new));
+        double step_len = length(sub(x_new, x_old));
+        
+        cout << "Длина градиента: " << grad_len << endl;
+        cout << "Длина шага: " << step_len << endl;
         
         // Проверка условий остановки
-        bool grad_small = length(gradF(x_new)) < 0.0000001;
-        bool step_small = length(sub(x_new, x_old)) < 0.0000001;
+        bool grad_small = length(gradF(x_new)) < 0.001;
+        bool step_small = length(sub(x_new, x_old)) < 0.001;
         
         x = x_new;
         
-        if (grad_small && step_small) {
+        if (grad_small || step_small) {
             break;
         }   
     } while(true);
